@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Multi-Tool Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Landing Page Styles */
+        .landing-page {
+            display: block;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .landing-page.hidden {
+            display: none;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+        }
+
+        .get-started-btn {
+            display: block;
+            width: 200px;
+            margin: 40px auto;
+            padding: 15px 30px;
+            background: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .get-started-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        /* Chat Interface Styles */
+        .chat-container {
+            display: none;
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+
+        .chat-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        .message.user .message-avatar {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .message.bot .message-avatar {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: #5a6fd8;
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 20px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div class="landing-page" id="landingPage">
+        <div class="container">
+            <div class="header">
+                <h1>🤖 AI Assistant</h1>
+                <p>Your Multi-Tool Intelligent Chatbot<br> Live Updates from the App</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧮</div>
+                    <h3>Math & Calculations</h3>
+                    <p>Perform calculations, check prime numbers, and solve mathematical problems instantly.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌤️</div>
+                    <h3>Weather & News</h3>
+                    <p>Get real-time weather updates for any city around the world.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Cryptocurrency</h3>
+                    <p>Check current prices of cryptocurrencies and market trends.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Security Tools</h3>
+                    <p>Check password strength and get security recommendations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🛍️</div>
+                    <h3>Shopping & Deals</h3>
+                    <p>Discover trending deals and shopping recommendations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <h3>Productivity</h3>
+                    <p>Pomodoro timers, task management, and productivity tips.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Translation</h3>
+                    <p>Translate text to different languages including Hindi.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎬</div>
+                    <h3>Entertainment</h3>
+                    <p>Get movie recommendations based on your favorite genres.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💻</div>
+                    <h3>Developer Tools</h3>
+                    <p>Generate UUIDs, code snippets, and development utilities.</p>
+                </div>
+            </div>
+
+            <button class="get-started-btn" onclick="startChat()">
+                Get Started 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <h2>AI Assistant Chat</h2>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    Hello! I'm your AI Assistant with access to multiple tools. I can help you with math, weather, crypto prices, security checks, deals, productivity, translations, entertainment, and developer tools. What would you like to know?
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            🤖 AI is thinking...
+        </div>
+
+        <div class="chat-input-container">
+            <form class="chat-input-form" id="chatForm">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Ask me anything..."
+                    autocomplete="off"
+                >
+                <button type="submit" class="send-btn" id="sendBtn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Configuration
+        const API_KEY = "AIzaSyC7OqFwaMbU-Ip0XLFtUHI4NDR2_k-MNNo";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
+        
+        let conversationHistory = [];
+
+        // DOM Elements
+        const landingPage = document.getElementById('landingPage');
+        const chatContainer = document.getElementById('chatContainer');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Navigation Functions
+        window.startChat = function() {
+            landingPage.classList.add('hidden');
+            chatContainer.classList.add('active');
+            chatInput.focus();
+        };
+
+        window.goBack = function() {
+            chatContainer.classList.remove('active');
+            landingPage.classList.remove('hidden');
+        };
+
+        // Tool Functions
+        const tools = {
+            sum: ({ num1, num2 }) => num1 + num2,
+            
+            prime: ({ num }) => {
+                if (num < 2) return false;
+                for (let i = 2; i <= Math.sqrt(num); i++) {
+                    if (num % i === 0) return false;
+                }
+                return true;
+            },
+            
+            getCryptoPrice: async ({ coin }) => {
+                try {
+                    const response = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coin}`);
+                    const data = await response.json();
+                    return data[0]?.current_price || "Price not found";
+                } catch (error) {
+                    return "Unable to fetch crypto price at the moment";
+                }
+            },
+            
+            getWeather: async ({ city }) => {
+                try {
+                    const response = await fetch(`https://wttr.in/${city}?format=3`);
+                    const text = await response.text();
+                    return text;
+                } catch (error) {
+                    return `Unable to fetch weather for ${city} at the moment`;
+                }
+            },
+            
+            checkPasswordStrength: ({ password }) => {
+                const strong = password.length >= 8 && /[A-Z]/.test(password) && /\d/.test(password);
+                return strong ? "Strong Password" : "Weak Password";
+            },
+            
+            getFakeDeals: () => {
+                return ["50% off on shoes", "Buy 1 Get 1 Free T-shirt", "Smartphone under ₹10,000"];
+            },
+            
+            pomodoroTimer: ({ session }) => {
+                return `Start your ${session}-minute Pomodoro session now!`;
+            },
+            
+            translateToHindi: ({ text }) => {
+                return `Translated to Hindi: "यह एक डेमो अनुवाद है" (Demo purpose only)`;
+            },
+            
+            generateGreeting: ({ name }) => {
+                return `Hello ${name}, how can I assist you today?`;
+            },
+            
+            summarizeText: ({ paragraph }) => {
+                return "This is a brief summary of the paragraph. (demo summary)";
+            },
+            
+            recommendMovie: ({ genre }) => {
+                return `Try watching 'Inception' if you like ${genre}`;
+            },
+            
+            generateUUID: () => {
+                return crypto.randomUUID();
+            }
+        };
+
+        // Tool Declarations for Gemini
+        const toolDeclarations = [
+            {
+                name: 'sum',
+                description: "Get the sum of 2 numbers",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        num1: { type: 'NUMBER', description: 'First number' },
+                        num2: { type: 'NUMBER', description: 'Second number' }
+                    },
+                    required: ['num1', 'num2']
+                }
+            },
+            {
+                name: 'prime',
+                description: "Check if a number is prime",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        num: { type: 'NUMBER', description: 'Number to check' }
+                    },
+                    required: ['num']
+                }
+            },
+            {
+                name: 'getCryptoPrice',
+                description: "Get the current price of a cryptocurrency",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        coin: { type: 'STRING', description: 'Name of the crypto (e.g. bitcoin)' }
+                    },
+                    required: ['coin']
+                }
+            },
+            {
+                name: 'getWeather',
+                description: "Get the current weather of a city",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        city: { type: 'STRING', description: 'City name like Delhi' }
+                    },
+                    required: ['city']
+                }
+            },
+            {
+                name: 'checkPasswordStrength',
+                description: "Check the strength of a password",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        password: { type: 'STRING', description: 'Password to check' }
+                    },
+                    required: ['password']
+                }
+            },
+            {
+                name: 'getFakeDeals',
+                description: "Get top trending online deals (simulated)",
+                parameters: { type: 'OBJECT', properties: {}, required: [] }
+            },
+            {
+                name: 'pomodoroTimer',
+                description: "Start a Pomodoro timer session",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        session: { type: 'NUMBER', description: 'Session time in minutes' }
+                    },
+                    required: ['session']
+                }
+            },
+            {
+                name: 'translateToHindi',
+                description: "Translate English text to Hindi",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        text: { type: 'STRING', description: 'English text to translate' }
+                    },
+                    required: ['text']
+                }
+            },
+            {
+                name: 'generateGreeting',
+                description: "Generate a greeting for a user",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        name: { type: 'STRING', description: 'User name' }
+                    },
+                    required: ['name']
+                }
+            },
+            {
+                name: 'summarizeText',
+                description: "Summarize a paragraph",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        paragraph: { type: 'STRING', description: 'Text to summarize' }
+                    },
+                    required: ['paragraph']
+                }
+            },
+            {
+                name: 'recommendMovie',
+                description: "Recommend a movie by genre",
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        genre: { type: 'STRING', description: 'Genre like action, comedy' }
+                    },
+                    required: ['genre']
+                }
+            },
+            {
+                name: 'generateUUID',
+                description: "Generate a UUID for development use",
+                parameters: { type: 'OBJECT', properties: {}, required: [] }
+            }
+        ];
+
+        // Add message to chat
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show/hide typing indicator
+        function showTyping(show = true) {
+            typingIndicator.classList.toggle('show', show);
+            if (show) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        // AI Agent Function
+        async function runAgent(userMessage) {
+            conversationHistory.push({
+                role: 'user',
+                parts: [{ text: userMessage }]
+            });
+
+            while (true) {
+                try {
+                    const requestBody = {
+                        contents: conversationHistory,
+                        tools: [{
+                            function_declarations: toolDeclarations
+                        }],
+                        systemInstruction: {
+                            parts: [{
+                                text: "You are a Smart AI Agent with access to multiple tools including Math, Crypto, Weather, Security, Deals, Productivity, Language Translation, Chat, Entertainment, and Developer tools. Be helpful and friendly."
+                            }]
+                        }
+                    };
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const candidate = data.candidates[0];
+                    
+                    if (candidate.content.parts[0].functionCall) {
+                        // Handle function call
+                        const functionCall = candidate.content.parts[0].functionCall;
+                        const functionName = functionCall.name;
+                        const functionArgs = functionCall.args;
+
+                        // Execute the tool
+                        const toolResult = await tools[functionName](functionArgs);
+
+                        // Add function call to history
+                        conversationHistory.push({
+                            role: 'model',
+                            parts: [{ functionCall: functionCall }]
+                        });
+
+                        // Add function response to history
+                        conversationHistory.push({
+                            role: 'user',
+                            parts: [{
+                                functionResponse: {
+                                    name: functionName,
+                                    response: { result: toolResult }
+                                }
+                            }]
+                        });
+
+                        // Continue the loop to get the final response
+                        continue;
+                    } else {
+                        // Regular text response
+                        const responseText = candidate.content.parts[0].text;
+                        conversationHistory.push({
+                            role: 'model',
+                            parts: [{ text: responseText }]
+                        });
+                        
+                        return responseText;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    return "Sorry, I encountered an error while processing your request. Please try again.";
+                }
+            }
+        }
+
+        // Handle form submission
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            chatInput.value = '';
+            
+            // Disable input and show typing
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
+            showTyping(true);
+
+            try {
+                // Get AI response
+                const response = await runAgent(message);
+                
+                // Hide typing and add response
+                showTyping(false);
+                addMessage(response);
+            } catch (error) {
+                showTyping(false);
+                addMessage("Sorry, I'm having trouble connecting right now. Please try again later.");
+            } finally {
+                // Re-enable input
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        });
+
+        // Handle Enter key
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
