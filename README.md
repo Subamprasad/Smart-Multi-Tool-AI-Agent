@@ -2,9 +2,9 @@
 
 This project is a command-line AI assistant powered by the Google Gemini API. It uses multiple functional extensions like math operations, crypto pricing, weather, language translation, and productivity tools to intelligently assist the user based on their queries.
 
-> 🔗 **Live Demo Website**: [shimmering-babka-c8bae6.netlify.app](https://shimmering-babka-c8bae6.netlify.app/)
+> 🔗 **Live Demo Website**: [[shimmering-babka-c8bae6.netlify.app](https://shimmering-babka-c8bae6.netlify.app/)
 
----
+---](https://shimmering-babka-c8bae6.netlify.app/)
 
 ## 🚀 Features
 
